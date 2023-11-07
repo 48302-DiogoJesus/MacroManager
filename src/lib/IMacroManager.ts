@@ -31,11 +31,7 @@ export interface IMacroManager {
         remoteVersion: string
     }>
 
-    getManagerVersions(): Promise<{
-        shouldUpdate: boolean
-        currentVersion: string
-        remoteVersion: string
-    }>
+    shouldUpdateManager(): Promise<boolean>
 
     updateFramework(): Promise<void>
     updateManager(): Promise<void>

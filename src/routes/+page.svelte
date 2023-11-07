@@ -26,7 +26,8 @@
 
   let frameworkVersionInfo: Awaited<
     ReturnType<IMacroManager['getFrameworkVersions']>
-  >;
+  > | null = null;
+  let shouldUpdateManager: boolean | null = null;
 
   let filterText: string | null = null;
   $: macrosFiltered = filterText
@@ -69,12 +70,24 @@
     });
   }
 
+  function updateManager() {
+    executeRPC('updateManager', [], () => {
+      executeRPC('shouldUpdateManager', [], (result) => {
+        shouldUpdateManager = result;
+      });
+    });
+  }
+
   onMount(() => {
     refreshFlatMacroList();
     setInterval(() => refreshFlatMacroList(), 5000);
 
     executeRPC('getFrameworkVersions', [], (result) => {
       frameworkVersionInfo = result;
+    });
+
+    executeRPC('shouldUpdateManager', [], (result) => {
+      shouldUpdateManager = result;
     });
   });
 </script>
@@ -86,7 +99,7 @@
 </p>
 
 <div id="lib_update_buttons" class="flex items-center justify-start gap-3 mb-4">
-  {#if !frameworkVersionInfo}
+  {#if frameworkVersionInfo == null}
     <Loader />
   {:else}
     <Button
@@ -100,6 +113,24 @@
         Framework Update! {frameworkVersionInfo.currentVersion} => {frameworkVersionInfo.remoteVersion}
       {:else}
         Framework Version: {frameworkVersionInfo.currentVersion}
+      {/if}
+    </Button>
+  {/if}
+
+  {#if shouldUpdateManager == null}
+    <Loader />
+  {:else}
+    <Button
+      on:click={updateManager}
+      class={shouldUpdateManager
+        ? 'bg-red-600 hover:bg-red-500'
+        : `bg-green-600 hover:bg-green-500`}
+      variant="outline"
+    >
+      {#if shouldUpdateManager}
+        Macro Manager Update!
+      {:else}
+        Macro Manager Up To Date!
       {/if}
     </Button>
   {/if}

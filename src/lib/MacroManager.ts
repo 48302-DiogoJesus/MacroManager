@@ -121,8 +121,15 @@ export const MacroManager: IMacroManager = {
         }
     },
 
-    getManagerVersions: function () {
-        throw new Error('Function not implemented.');
+    shouldUpdateManager: async function () {
+        const currentVersion = await new Promise(res => {
+            exec("git rev-parse HEAD", (err, out) => res(out.replace("HEAD", "").trim()))
+        })
+        const remoteVersion = await new Promise(res => {
+            exec("git ls-remote origin HEAD", (err, out) => res(out.replace("HEAD", "").trim()))
+        })
+
+        return currentVersion != remoteVersion
     },
 
     updateFramework: function (): Promise<void> {
@@ -133,7 +140,13 @@ export const MacroManager: IMacroManager = {
             })
         })
     },
+
     updateManager: function (): Promise<void> {
-        throw new Error('Function not implemented.');
+        return new Promise((res) => {
+            exec("git pull --ff-only", (err, stdout) => {
+                console.log("updateManager() => " + stdout)
+                res()
+            })
+        })
     }
 }

@@ -13,10 +13,10 @@ export const POST: RequestHandler = async ({ request, url }) => {
 
     try {
         const result = await MacroManager[fn](...args)
-        console.log("RPC complete", result)
+        // console.log("RPC complete", result)
         return Response.json({ error: false, data: result });
     } catch (ex) {
-        console.log("RPC error:", ex.message)
+        // console.log("RPC error:", ex.message)
         return Response.json({ error: true, error_msg: ex.message });
     }
 };
