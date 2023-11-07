@@ -46,7 +46,7 @@
 </script>
 
 <div>
-  <Dialog.Root closeOnOutsideClick={false}>
+  <Dialog.Root closeOnOutsideClick={false} closeOnEscape={false}>
     <Dialog.Trigger>
       <slot />
     </Dialog.Trigger>

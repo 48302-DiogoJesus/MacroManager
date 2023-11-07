@@ -19,7 +19,7 @@
   }
 </script>
 
-<Dialog.Root>
+<Dialog.Root closeOnOutsideClick={false} closeOnEscape={false}>
   <Dialog.Trigger>
     <slot />
   </Dialog.Trigger>

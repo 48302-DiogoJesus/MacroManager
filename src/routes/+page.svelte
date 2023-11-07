@@ -23,6 +23,7 @@
   import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import TaskCreatorDialog from '../mycomponents/TaskCreatorDialog.svelte';
+  import MacroExecutionDialogContent from '../mycomponents/MacroExecutionDialogContent.svelte';
 
   let isRefreshing = false;
   let macros: Awaited<ReturnType<IMacroManager['getMacrosFlat']>> = [];
@@ -128,16 +129,29 @@
       {#each macrosFiltered || macros as macro}
         <Table.Row>
           <Table.Cell>
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <TooltipWrapper msg="Run Macro">
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <span
-                class="text-green-500 icon"
-                on:click={() => executeRPC('runMacro', [macro.path])}
-              >
-                <FaPlay />
-              </span>
-            </TooltipWrapper>
+            <Dialog.Root closeOnOutsideClick={false} closeOnEscape={false}>
+              <Dialog.Trigger>
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <TooltipWrapper msg="Run Macro">
+                  <!-- svelte-ignore a11y-click-events-have-key-events -->
+                  <!-- Clicking opens dialog to choose invocation variables -->
+                  <span class="text-green-500 icon">
+                    <FaPlay />
+                  </span>
+                </TooltipWrapper>
+              </Dialog.Trigger>
+              <Dialog.DialogContent class="min-w-[50vw]">
+                <Dialog.Header>
+                  <Dialog.Title class="text-2xl"
+                    >Run "{macro.name}"</Dialog.Title
+                  >
+                  <Dialog.Description>
+                    Runs your macro with invocation variables set by you
+                  </Dialog.Description>
+                  <MacroExecutionDialogContent macroPath={macro.path} />
+                </Dialog.Header>
+              </Dialog.DialogContent>
+            </Dialog.Root>
           </Table.Cell>
 
           <Table.Cell class="text-lg font-bold text-slate-300"
@@ -146,42 +160,44 @@
           <Table.Cell class="text-sm">{macro.path}</Table.Cell>
           <Table.Cell class="flex items-center justify-start gap-4">
             {macro.last_run ? macro.last_run.toUTCString() : 'N/A'}
-            <Dialog.Root>
-              <Dialog.Trigger>
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <TooltipWrapper msg="See Last Run Logs">
+            {#if macro.last_run}
+              <Dialog.Root closeOnOutsideClick={false} closeOnEscape={false}>
+                <Dialog.Trigger>
                   <!-- svelte-ignore a11y-click-events-have-key-events -->
-                  <!-- svelte-ignore a11y-no-static-element-interactions -->
-                  <span class="text-slate-300 icon">
-                    <FaFileAlt />
-                  </span>
-                </TooltipWrapper>
-              </Dialog.Trigger>
-              <Dialog.DialogContent class="min-w-[90vw] pt-14">
-                <div id="logs" class="overflow-auto max-h-[80vh]">
-                  {#await executeLogsRPC(macro.path)}
-                    <p>Loading Logs for {macro.path}...</p>
-                  {:then log_lines}
-                    {#each log_lines as log_line, idx}
-                      {#if idx < log_lines.length}
-                        <Separator
-                          class="my-1 border-2"
-                          orientation="horizontal"
-                        />
-                      {/if}
-                      <div class="w-[90%] py-1">
-                        {log_line}
-                      </div>
-                    {/each}
-                  {:catch}
-                    <p>
-                      Could not load Logs for {macro.path}! Try to go to the
-                      Logs folder manually
-                    </p>
-                  {/await}
-                </div>
-              </Dialog.DialogContent>
-            </Dialog.Root>
+                  <TooltipWrapper msg="See Last Run Logs">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <span class="text-slate-300 icon">
+                      <FaFileAlt />
+                    </span>
+                  </TooltipWrapper>
+                </Dialog.Trigger>
+                <Dialog.DialogContent class="min-w-[90vw] pt-14">
+                  <div id="logs" class="overflow-auto max-h-[80vh]">
+                    {#await executeLogsRPC(macro.path)}
+                      <p>Loading Logs for {macro.path}...</p>
+                    {:then log_lines}
+                      {#each log_lines as log_line, idx}
+                        {#if idx < log_lines.length}
+                          <Separator
+                            class="my-1 border-2"
+                            orientation="horizontal"
+                          />
+                        {/if}
+                        <div class="w-[90%] py-1">
+                          {log_line}
+                        </div>
+                      {/each}
+                    {:catch}
+                      <p>
+                        Could not load Logs for {macro.path}! Try to go to the
+                        Logs folder manually
+                      </p>
+                    {/await}
+                  </div>
+                </Dialog.DialogContent>
+              </Dialog.Root>
+            {/if}
           </Table.Cell>
 
           <Table.Cell>

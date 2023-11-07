@@ -2,7 +2,7 @@ import type { Folder } from "./FileSystemTree"
 import type { IMacro } from "./IMacro"
 
 export interface IMacroManager {
-    // Creates a boilerplate macro.py inside macros folder %userprofile%/MacroManager
+    // Creates a template macro.py inside macros folder %userprofile%/MacroManager
     createMacro(name: string): string
 
     // Opens macros folder %userprofile%/MacroManager
@@ -17,11 +17,21 @@ export interface IMacroManager {
 
     getLatestMacroLogs(absoluteMacroPath: string): Promise<Array<string>>,
 
-    runMacro(absoluteMacroPath: string): void
+    runMacro(
+        absoluteMacroPath: string,
+        invocationVariables: { [key: InvocationVariableName]: InvocationVariableValue },
+        timeBetweenInstructionsS?: string
+    ): void
+
+    getMacroInvocationVariablesMetadata(absoluteMacroPath: string): { [key: InvocationVariableName]: InvocationVariableDetails }
 
     shouldUpdateFramework(): Promise<boolean>
     shouldUpdateManager(): Promise<boolean>
 
     updateFramework(): Promise<void>
     updateManager(): Promise<void>
-} 
+}
+
+export type InvocationVariableName = string
+export type InvocationVariableDetails = { type: "string" | "number", accepted_values: Array<string> | null }
+export type InvocationVariableValue = string
