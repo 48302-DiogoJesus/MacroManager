@@ -63,6 +63,8 @@
   }
 
   function updateFramework() {
+    if (!frameworkVersionInfo.shouldUpdate) return;
+
     executeRPC('updateFramework', [], () => {
       executeRPC('getFrameworkVersions', [], (result) => {
         frameworkVersionInfo = result;
@@ -71,6 +73,8 @@
   }
 
   function updateManager() {
+    if (!shouldUpdateManager) return;
+
     executeRPC('updateManager', [], () => {
       executeRPC('shouldUpdateManager', [], (result) => {
         shouldUpdateManager = result;
@@ -103,6 +107,7 @@
     <Loader />
   {:else}
     <Button
+      disabled={!frameworkVersionInfo.shouldUpdate}
       on:click={updateFramework}
       class={frameworkVersionInfo.shouldUpdate
         ? 'bg-red-600 hover:bg-red-500'
@@ -121,6 +126,7 @@
     <Loader />
   {:else}
     <Button
+      disabled={!shouldUpdateManager}
       on:click={updateManager}
       class={shouldUpdateManager
         ? 'bg-red-600 hover:bg-red-500'
