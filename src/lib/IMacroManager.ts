@@ -25,8 +25,17 @@ export interface IMacroManager {
 
     getMacroInvocationVariablesMetadata(absoluteMacroPath: string): { [key: InvocationVariableName]: InvocationVariableDetails }
 
-    shouldUpdateFramework(): Promise<boolean>
-    shouldUpdateManager(): Promise<boolean>
+    getFrameworkVersions(): Promise<{
+        shouldUpdate: boolean
+        currentVersion: string
+        remoteVersion: string
+    }>
+
+    getManagerVersions(): Promise<{
+        shouldUpdate: boolean
+        currentVersion: string
+        remoteVersion: string
+    }>
 
     updateFramework(): Promise<void>
     updateManager(): Promise<void>

@@ -1,17 +1,36 @@
-export function replaceMacroInterval(sourceCode: string, newInterval: string): string {
-    // Define a regular expression pattern to match @Macro decorator with optional arguments
-    const macroRegex = /@Macro\(([^)]*)\)/;
+import type { InvocationVariableDetails, InvocationVariableName } from "./IMacroManager";
 
-    // Replace the interval value in the @Macro decorator while preserving other arguments
-    const modifiedCode = sourceCode.replace(macroRegex, (match, args) => {
-        const argsArray = args.split(',').map(arg => {
-            if (arg.trim().startsWith('interval_s=')) {
-                return `interval_s=${newInterval}`;
+export function validateMacroRPC(
+    macroPath: string,
+    invocationVariables: { [key: InvocationVariableName]: InvocationVariableDetails },
+    invocationVariablesValues: { [key: InvocationVariableName]: string },
+    timeBetweenInstructionsS: string
+): "valid" | Error {
+    if (isNaN(parseFloat(timeBetweenInstructionsS))) {
+        return Error(`Invalid time between instructions: ${timeBetweenInstructionsS}`)
+    }
+    if (
+        Object.keys(invocationVariablesValues).length !=
+        Object.keys(invocationVariables).length
+    ) {
+        return Error('Some variables are missing. You need to provide a value for all the variables')
+    }
+
+    const typeErrorsMsgs = [];
+    for (const [varname, value] of Object.entries(invocationVariablesValues)) {
+        const { type, accepted_values } = invocationVariables[varname];
+
+        if (accepted_values != null) continue; // these should be autocomplete making it imposible to have invalid value
+
+        if (type == 'number') {
+            if (value.includes(' ') || isNaN(parseFloat(value))) {
+                typeErrorsMsgs.push(`${varname} must be a number`);
             }
-            return arg.trim();
-        });
-        return `@Macro(${argsArray.join(', ')})`;
-    });
+        }
+    }
+    if (typeErrorsMsgs.length > 0) {
+        return Error(typeErrorsMsgs.join('; '))
+    }
 
-    return modifiedCode;
+    return "valid"
 }

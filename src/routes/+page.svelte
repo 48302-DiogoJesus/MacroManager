@@ -2,8 +2,6 @@
   import type { IMacroManager } from './../lib/IMacroManager';
   import TooltipWrapper from './../mycomponents/TooltipWrapper.svelte';
   import * as Table from '$lib/components/ui/table';
-  import * as Tooltip from '$lib/components/ui/tooltip';
-  import { Loader2 } from 'lucide-svelte';
   import { Button } from '$lib/components/ui/button';
   import * as Dialog from '$lib/components/ui/dialog';
   import { Input } from '$lib/components/ui/input';
@@ -16,28 +14,24 @@
   import FaFileAlt from 'svelte-icons/fa/FaFileAlt.svelte';
   import FaClock from 'svelte-icons/fa/FaClock.svelte';
   import FaRedo from 'svelte-icons/fa/FaRedo.svelte';
-  import FaRegClipboard from 'svelte-icons/fa/FaRegClipboard.svelte';
   import TaskSchedulerDialog from '../mycomponents/TaskSchedulerDialog.svelte';
   import { onMount } from 'svelte';
   import { executeRPC } from '$lib/client/executeRPC';
-  import DialogContent from '$lib/components/ui/dialog/dialog-content.svelte';
-  import Label from '$lib/components/ui/label/label.svelte';
   import TaskCreatorDialog from '../mycomponents/TaskCreatorDialog.svelte';
   import MacroExecutionDialogContent from '../mycomponents/MacroExecutionDialogContent.svelte';
+  import { Loader } from 'lucide-svelte';
 
   let isRefreshing = false;
   let macros: Awaited<ReturnType<IMacroManager['getMacrosFlat']>> = [];
 
+  let frameworkVersionInfo: Awaited<
+    ReturnType<IMacroManager['getFrameworkVersions']>
+  >;
+
   let filterText: string | null = null;
   $: macrosFiltered = filterText
-    ? macros.filter(
-        (m) =>
-          m.name.toLowerCase().includes(filterText.toLowerCase()) ||
-          m.path.toLowerCase().includes(filterText.toLowerCase()) ||
-          m.last_run
-            .toUTCString()
-            .toLowerCase()
-            .includes(filterText.toLowerCase())
+    ? macros.filter((m) =>
+        m.name.toLowerCase().includes(filterText.toLowerCase())
       )
     : null;
 
@@ -49,9 +43,12 @@
     );
   }
 
-  async function refreshFlatMacroList() {
+  async function refreshFlatMacroList(userIntention: boolean = false) {
     if (isRefreshing) return;
-    isRefreshing = true;
+    // Avoid flickering animation
+    let iv;
+    if (!userIntention) iv = setTimeout(() => (isRefreshing = true), 300);
+    else isRefreshing = true;
 
     await executeRPC('getMacrosFlat', [], (result) => {
       macros = result.map((macro) => ({
@@ -60,21 +57,55 @@
       }));
     });
 
-    isRefreshing = false;
+    if (iv) clearTimeout(iv);
+    setTimeout(() => (isRefreshing = false), 500);
+  }
+
+  function updateFramework() {
+    executeRPC('updateFramework', [], () => {
+      executeRPC('getFrameworkVersions', [], (result) => {
+        frameworkVersionInfo = result;
+      });
+    });
   }
 
   onMount(() => {
     refreshFlatMacroList();
+    setInterval(() => refreshFlatMacroList(), 5000);
+
+    executeRPC('getFrameworkVersions', [], (result) => {
+      frameworkVersionInfo = result;
+    });
   });
 </script>
 
-<h1 class="ml-0">Macro Manager</h1>
+<h1 class="my-0 ml-0">Macro Manager</h1>
 
 <p class="my-6 text-lg text-slate-200">
   Manages your macros located at <code>%userprofile%\MacroManager</code>
 </p>
 
-<div id="buttons" class="flex items-center justify-start gap-3">
+<div id="lib_update_buttons" class="flex items-center justify-start gap-3 mb-4">
+  {#if !frameworkVersionInfo}
+    <Loader />
+  {:else}
+    <Button
+      on:click={updateFramework}
+      class={frameworkVersionInfo.shouldUpdate
+        ? 'bg-red-600 hover:bg-red-500'
+        : `bg-green-600 hover:bg-green-500`}
+      variant="outline"
+    >
+      {#if frameworkVersionInfo.shouldUpdate}
+        Framework Update! {frameworkVersionInfo.currentVersion} => {frameworkVersionInfo.remoteVersion}
+      {:else}
+        Framework Version: {frameworkVersionInfo.currentVersion}
+      {/if}
+    </Button>
+  {/if}
+</div>
+
+<div id="macro_buttons" class="flex items-center justify-start gap-3">
   <TaskCreatorDialog refreshList={refreshFlatMacroList}>
     <Button variant="secondary" class="bg-green-600 hover:bg-green-500">
       <span class="mr-3 icon">
@@ -88,7 +119,7 @@
     variant="secondary"
     class="my-4 bg-blue-800 hover:bg-blue-700"
     disabled={isRefreshing}
-    on:click={refreshFlatMacroList}
+    on:click={() => refreshFlatMacroList(true)}
   >
     <span class="mr-3 icon">
       <FaRedo />
@@ -110,7 +141,7 @@
 
 <Input
   class="max-w-sm my-3 border-[3px]"
-  placeholder="Filter by name, path or last run ..."
+  placeholder="Filter by name ..."
   type="text"
   bind:value={filterText}
 />
@@ -205,7 +236,7 @@
             <TooltipWrapper msg="Open in File Explorer">
               <!-- svelte-ignore a11y-click-events-have-key-events -->
               <span
-                class="text-yellow-300 icon"
+                class="text-yellow-400 icon"
                 on:click={() =>
                   executeRPC('openMacroInFileExplorer', [macro.path])}
               >

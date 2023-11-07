@@ -6,10 +6,11 @@ import { exec } from "child_process"
 import path from 'path';
 import fs from 'fs-extra';
 import { macroTemplate } from './macro-template';
-import { replaceMacroInterval } from './myUtils';
 
-const MacrosPath = os.userInfo().homedir + '\\MacroManager';
+const MacrosPath = path.join(os.userInfo().homedir, 'MacroManager');
 const DEFAULT_MACRO_NAME = "macro.py"
+const PythonFrameworkName = "DesktopAutomationFramework"
+const PythonFrameworkGithubRepo = `https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt`
 
 export const MacroManager: IMacroManager = {
     // Returns the full path of the macro
@@ -91,32 +92,46 @@ export const MacroManager: IMacroManager = {
         invocationVariables: { [key: string]: string } = {},
         timeBetweenInstructionsS?: string
     ) => {
-        if (timeBetweenInstructionsS) {
-            // Change Python code
-            const newMacroContent = fs.readFileSync(absoluteMacroPath, { encoding: "utf-8" })
-                .split('\n')
-                .map(line =>
-                    line.startsWith("@Macro(")
-                        ? replaceMacroInterval(line, timeBetweenInstructionsS)
-                        : line).join("\n")
+        const keyValuePairs = Object.entries(invocationVariables).map(([key, value]) => `${key}="${value}"`).join(' ');
+        let command = `pythonw "${absoluteMacroPath}" ${keyValuePairs}`
 
-            fs.writeFileSync(absoluteMacroPath, newMacroContent, { encoding: "utf-8" })
+        if (timeBetweenInstructionsS) {
+            command += ` --interval_s=${timeBetweenInstructionsS}`
         }
 
-        const keyValuePairs = Object.entries(invocationVariables).map(([key, value]) => `${key}="${value}"`).join(' ');
-        const command = `pythonw "${absoluteMacroPath}" ${keyValuePairs}`
         exec(command)
     },
 
-    shouldUpdateFramework: function (): Promise<boolean> {
-        throw new Error('Function not implemented.');
+    getFrameworkVersions: async function () {
+        const remoteVersion = await (await fetch(PythonFrameworkGithubRepo)).text()
+        const currentVersion: string =
+            await new Promise((res) => {
+                exec(`pip show ${PythonFrameworkName}`, (err, stdout) => {
+                    const versionMatch = stdout.match(/Version: (.+)/);
+                    if (versionMatch) {
+                        res(versionMatch[1]);
+                    }
+                });
+            })
+
+        return {
+            shouldUpdate: currentVersion != remoteVersion,
+            currentVersion,
+            remoteVersion
+        }
     },
-    shouldUpdateManager: function (): Promise<boolean> {
+
+    getManagerVersions: function () {
         throw new Error('Function not implemented.');
     },
 
     updateFramework: function (): Promise<void> {
-        throw new Error('Function not implemented.');
+        return new Promise((res) => {
+            exec("pip install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework", (err, stdout) => {
+                console.log("updateFramework() => " + stdout)
+                res()
+            })
+        })
     },
     updateManager: function (): Promise<void> {
         throw new Error('Function not implemented.');

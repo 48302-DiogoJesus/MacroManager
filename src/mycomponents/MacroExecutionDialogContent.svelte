@@ -9,12 +9,14 @@
   import Label from '$lib/components/ui/label/label.svelte';
   import * as Select from '$lib/components/ui/select';
   import Separator from '$lib/components/ui/separator/separator.svelte';
+  import { validateMacroRPC } from '$lib/myUtils';
   import { onMount } from 'svelte';
+  import InvocationVariablesForm from './InvocationVariablesForm.svelte';
 
   export let macroPath: string;
 
   const clearErrorTimeS = 5;
-  let errorInterval;
+  let errorInterval: any;
   let errorMessage: string | null = null;
 
   let invocationVariables:
@@ -25,6 +27,7 @@
       } = 'loading';
 
   let invocationVariablesValues: { [key: InvocationVariableName]: string } = {};
+  let timeBetweenInstructionsS: string = '1';
 
   function getInvocationVariablesMD(): Promise<null | {
     [key: InvocationVariableName]: InvocationVariableDetails;
@@ -36,48 +39,38 @@
     });
   }
 
+  function showError(message: string) {
+    errorMessage = message;
+
+    errorInterval = setTimeout(
+      () => (errorMessage = null),
+      clearErrorTimeS * 1000
+    );
+  }
+
   function runMacro() {
     if (invocationVariables == 'loading' || invocationVariables == null) return;
 
     if (errorInterval) clearInterval(errorInterval);
     errorMessage = null;
 
-    if (
-      Object.keys(invocationVariablesValues).length !=
-      Object.keys(invocationVariables).length
-    ) {
-      errorMessage =
-        'Some variables are missing. You need to provide a value for all the variables';
+    const result = validateMacroRPC(
+      macroPath,
+      invocationVariables,
+      invocationVariablesValues,
+      timeBetweenInstructionsS
+    );
 
-      errorInterval = setTimeout(
-        () => (errorMessage = null),
-        clearErrorTimeS * 1000
-      );
+    if (result != 'valid') {
+      showError(result.message);
       return;
     }
 
-    const typeErrorsMsgs = [];
-    for (const [varname, value] of Object.entries(invocationVariablesValues)) {
-      const { type, accepted_values } = invocationVariables[varname];
-
-      if (accepted_values != null) continue; // these should be autocomplete making it imposible to have invalid value
-
-      if (type == 'number') {
-        if (value.includes(' ') || isNaN(parseFloat(value))) {
-          typeErrorsMsgs.push(`${varname} must be a number`);
-        }
-      }
-    }
-    if (typeErrorsMsgs.length > 0) {
-      errorMessage = typeErrorsMsgs.join('; ');
-      errorInterval = setTimeout(
-        () => (errorMessage = null),
-        clearErrorTimeS * 1000
-      );
-      return;
-    }
-
-    executeRPC('runMacro', [macroPath, invocationVariablesValues]);
+    executeRPC('runMacro', [
+      macroPath,
+      invocationVariablesValues,
+      timeBetweenInstructionsS,
+    ]);
   }
 
   onMount(async () => (invocationVariables = await getInvocationVariablesMD()));
@@ -92,64 +85,16 @@
     >Interval Between Operations</Label
   >
   <span class="flex items-center gap-3 mb-3">
-    <Input value="1" class="w-28" type="number" />
+    <Input
+      value="1"
+      class="w-28"
+      type="number"
+      on:input={(e) => (timeBetweenInstructionsS = e.currentTarget.value)}
+    />
     seconds
   </span>
 
-  {#if invocationVariables == 'loading'}
-    <p>Loading...</p>
-  {:else if invocationVariables != null}
-    {#if invocationVariables}
-      <Label class="mb-3 text-lg underline underline-offset-4"
-        >Invocation Variables</Label
-      >
-
-      <div
-        id="invocation-variables"
-        class="flex flex-col gap-3 max-h-[80vh] overflow-y-auto"
-      >
-        {#each Object.entries(invocationVariables) as [varname, { type, accepted_values }]}
-          <div class="flex items-center gap-3 variable">
-            <div class="flex items-center gap-1 border-1">
-              <span />
-              {varname} <code> ({type})</code>
-            </div>
-
-            {#if accepted_values}
-              <Select.Root portal={null}>
-                <Select.Trigger class="border-2">
-                  <Select.Value placeholder="Select a value" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Group>
-                    {#each accepted_values as accepted_value}
-                      <Select.Item
-                        on:click={() => {
-                          invocationVariablesValues[varname] = accepted_value;
-                        }}
-                        class="py-2"
-                        value={accepted_value}
-                        label={accepted_value}>{accepted_value}</Select.Item
-                      >
-                    {/each}
-                  </Select.Group>
-                </Select.Content>
-                <Select.Input name="favoriteFruit" />
-              </Select.Root>
-            {:else}
-              <Input
-                class="border-2"
-                on:input={(e) => {
-                  invocationVariablesValues[varname] = e.currentTarget.value;
-                }}
-              />
-            {/if}
-            <br />
-          </div>
-        {/each}
-      </div>
-    {/if}
-  {/if}
+  <InvocationVariablesForm {invocationVariables} {invocationVariablesValues} />
 
   <br />
 
