@@ -28,6 +28,8 @@
     ReturnType<IMacroManager['getFrameworkVersions']>
   > | null = null;
   let shouldUpdateManager: boolean | null = null;
+  let isUpdatingManager = false;
+  let isUpdatingFramework = false;
 
   let filterText: string | null = null;
   $: macrosFiltered = filterText
@@ -65,9 +67,12 @@
   function updateFramework() {
     if (!frameworkVersionInfo.shouldUpdate) return;
 
+    isUpdatingFramework = true;
+
     executeRPC('updateFramework', [], () => {
       executeRPC('getFrameworkVersions', [], (result) => {
         frameworkVersionInfo = result;
+        isUpdatingFramework = false;
       });
     });
   }
@@ -75,9 +80,12 @@
   function updateManager() {
     if (!shouldUpdateManager) return;
 
+    isUpdatingManager = true;
+
     executeRPC('updateManager', [], () => {
       executeRPC('shouldUpdateManager', [], (result) => {
         shouldUpdateManager = result;
+        isUpdatingManager = false;
       });
     });
   }
@@ -108,7 +116,7 @@
   {:else}
     <Button
       on:click={updateFramework}
-      disabled={!frameworkVersionInfo.shouldUpdate}
+      disabled={!frameworkVersionInfo.shouldUpdate || isUpdatingFramework}
       class={frameworkVersionInfo.shouldUpdate
         ? 'bg-red-600 hover:bg-red-500'
         : `bg-green-600 hover:bg-green-500`}
@@ -126,7 +134,7 @@
     <Loader />
   {:else}
     <Button
-      disabled={!shouldUpdateManager}
+      disabled={!shouldUpdateManager || isUpdatingManager}
       on:click={updateManager}
       class={shouldUpdateManager
         ? 'bg-red-600 hover:bg-red-500'

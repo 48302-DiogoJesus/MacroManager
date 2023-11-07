@@ -10,7 +10,7 @@ import { macroTemplate } from './macro-template';
 const MacrosPath = path.join(os.userInfo().homedir, 'MacroManager');
 const DEFAULT_MACRO_NAME = "macro.py"
 const PythonFrameworkName = "DesktopAutomationFramework"
-const PythonFrameworkGithubRepo = `https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt`
+const PythonFrameworkGithubVersionFile = `https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt`
 
 export const MacroManager: IMacroManager = {
     // Returns the full path of the macro
@@ -103,7 +103,12 @@ export const MacroManager: IMacroManager = {
     },
 
     getFrameworkVersions: async function () {
-        const remoteVersion = await (await fetch(PythonFrameworkGithubRepo)).text()
+        // curl https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt
+        const remoteVersion: string = await new Promise((res) => {
+            exec(`curl ${PythonFrameworkGithubVersionFile}`, (err, stdout) => {
+                res(stdout);
+            });
+        })
         const currentVersion: string =
             await new Promise((res) => {
                 exec(`pip show ${PythonFrameworkName}`, (err, stdout) => {
@@ -113,6 +118,8 @@ export const MacroManager: IMacroManager = {
                     }
                 });
             })
+
+        console.log(remoteVersion, currentVersion)
 
         return {
             shouldUpdate: currentVersion != remoteVersion,
