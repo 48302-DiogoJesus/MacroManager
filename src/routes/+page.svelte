@@ -107,8 +107,8 @@
     <Loader />
   {:else}
     <Button
-      disabled={!frameworkVersionInfo.shouldUpdate}
       on:click={updateFramework}
+      disabled={!frameworkVersionInfo.shouldUpdate}
       class={frameworkVersionInfo.shouldUpdate
         ? 'bg-red-600 hover:bg-red-500'
         : `bg-green-600 hover:bg-green-500`}
