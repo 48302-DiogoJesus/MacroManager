@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { IMacroManager } from './../lib/IMacroManager';
+  import type { IMacroManager } from '../lib/types/IMacroManager';
   import TooltipWrapper from './../mycomponents/TooltipWrapper.svelte';
   import * as Table from '$lib/components/ui/table';
   import { Button } from '$lib/components/ui/button';
@@ -7,6 +7,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Separator } from '$lib/components/ui/separator';
 
+  import FaPython from 'svelte-icons/fa/FaPython.svelte';
   import FaPlus from 'svelte-icons/fa/FaPlus.svelte';
   import FaPlay from 'svelte-icons/fa/FaPlay.svelte';
   import MdFolder from 'svelte-icons/md/MdFolder.svelte';
@@ -151,6 +152,30 @@
 </div>
 
 <div id="macro_buttons" class="flex items-center justify-start gap-3">
+  <Button
+    variant="secondary"
+    class="my-4 bg-yellow-700 hover:bg-yellow-600"
+    on:click={() => executeRPC('openMacrosFolder', [])}
+  >
+    <span class="mr-3 icon">
+      <MdFolder />
+    </span>
+    Open Macros Folder
+  </Button>
+
+  <Button
+    variant="secondary"
+    class="my-4 bg-blue-500 hover:bg-blue-400"
+    on:click={() => executeRPC('openMacroTemplate', [])}
+  >
+    <span class="mr-3 icon">
+      <FaPython />
+    </span>
+    Open Macro Template
+  </Button>
+</div>
+
+<div id="macro_buttons_2" class="flex items-center justify-start gap-3">
   <TaskCreatorDialog refreshList={refreshFlatMacroList}>
     <Button variant="secondary" class="bg-green-600 hover:bg-green-500">
       <span class="mr-3 icon">
@@ -162,7 +187,7 @@
 
   <Button
     variant="secondary"
-    class="my-4 bg-blue-800 hover:bg-blue-700"
+    class="bg-blue-800 hover:bg-blue-700"
     disabled={isRefreshing}
     on:click={() => refreshFlatMacroList(true)}
   >
@@ -170,17 +195,6 @@
       <FaRedo />
     </span>
     {isRefreshing ? 'Refreshing' : 'Refresh'}
-  </Button>
-
-  <Button
-    variant="secondary"
-    class="my-4 bg-yellow-700 hover:bg-yellow-600"
-    on:click={() => executeRPC('openMacrosFolder', [])}
-  >
-    <span class="mr-3 icon">
-      <MdFolder />
-    </span>
-    Open Macros Folder
   </Button>
 </div>
 

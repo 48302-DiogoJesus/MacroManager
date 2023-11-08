@@ -1,14 +1,18 @@
-import type { InvocationVariableDetails, InvocationVariableName } from "./IMacroManager";
+import type { InvocationVariableDetails, InvocationVariableName } from "../types/IMacroManager";
 
 export function validateMacroRPC(
     macroPath: string,
-    invocationVariables: { [key: InvocationVariableName]: InvocationVariableDetails },
+    invocationVariables: { [key: InvocationVariableName]: InvocationVariableDetails } | null,
     invocationVariablesValues: { [key: InvocationVariableName]: string },
     timeBetweenInstructionsS: string
 ): "valid" | Error {
     if (isNaN(parseFloat(timeBetweenInstructionsS))) {
         return Error(`Invalid time between instructions: ${timeBetweenInstructionsS}`)
     }
+
+    if (invocationVariables == null)
+        return "valid"
+
     if (
         Object.keys(invocationVariablesValues).length !=
         Object.keys(invocationVariables).length

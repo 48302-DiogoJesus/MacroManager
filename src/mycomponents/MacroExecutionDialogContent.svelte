@@ -2,14 +2,14 @@
   import type {
     InvocationVariableDetails,
     InvocationVariableName,
-  } from '$lib/IMacroManager';
+  } from '$lib/types/IMacroManager';
   import { executeRPC } from '$lib/client/executeRPC';
   import Button from '$lib/components/ui/button/button.svelte';
   import { Input } from '$lib/components/ui/input';
   import Label from '$lib/components/ui/label/label.svelte';
   import * as Select from '$lib/components/ui/select';
   import Separator from '$lib/components/ui/separator/separator.svelte';
-  import { validateMacroRPC } from '$lib/myUtils';
+  import { validateMacroRPC } from '$lib/utils/myUtils';
   import { onMount } from 'svelte';
   import InvocationVariablesForm from './InvocationVariablesForm.svelte';
 
@@ -26,17 +26,19 @@
         [key: InvocationVariableName]: InvocationVariableDetails;
       } = 'loading';
 
-  let invocationVariablesValues: { [key: InvocationVariableName]: string } = {};
+  let invocationVariablesValues: {
+    [key: InvocationVariableName]: string;
+  } = {};
   let timeBetweenInstructionsS: string = '1';
 
   function getInvocationVariablesMD(): Promise<null | {
     [key: InvocationVariableName]: InvocationVariableDetails;
   }> {
-    return new Promise((res) => {
+    return new Promise((res) =>
       executeRPC('getMacroInvocationVariablesMetadata', [macroPath], (data) => {
         res(Object.keys(data).length == 0 ? null : data);
-      });
-    });
+      })
+    );
   }
 
   function showError(message: string) {
@@ -49,7 +51,7 @@
   }
 
   function runMacro() {
-    if (invocationVariables == 'loading' || invocationVariables == null) return;
+    if (invocationVariables == 'loading') return;
 
     if (errorInterval) clearInterval(errorInterval);
     errorMessage = null;

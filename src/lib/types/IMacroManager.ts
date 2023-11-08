@@ -1,4 +1,4 @@
-import type { Folder } from "./FileSystemTree"
+import type { Folder } from "../utils/FileSystemTree"
 import type { IMacro } from "./IMacro"
 
 export interface IMacroManager {
@@ -10,6 +10,7 @@ export interface IMacroManager {
     openMacroInCodeEditor(absoluteMacroPath: string): void
     openMacroInFileExplorer(absoluteMacroPath: string): void
     openTaskScheduler(): void
+    openMacroTemplate(): void
 
     getMacrosFlat(): Promise<Array<IMacro>>
 

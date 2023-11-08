@@ -1,6 +1,7 @@
 import fs from 'fs-extra';
 import path from 'path';
-import type { IMacro } from './IMacro';
+import type { IMacro } from '../types/IMacro';
+import { templateMacroPath } from '$lib/MacroManager';
 
 export async function getMacrosFlat(root_dir: string): Promise<Array<IMacro>> {
     try {
@@ -60,7 +61,7 @@ export async function getMacrosFlat(root_dir: string): Promise<Array<IMacro>> {
         }
 
         await search(root_dir);
-        return fileList;
+        return fileList.filter(file => file.path != templateMacroPath);
     } catch (error) {
         console.error('Error searching Python files:', error);
         return [];

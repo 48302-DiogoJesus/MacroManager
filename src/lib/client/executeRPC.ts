@@ -1,4 +1,4 @@
-import type { IMacroManager } from "$lib/IMacroManager";
+import type { IMacroManager } from "$lib/types/IMacroManager";
 
 export type ErrorMessage = string
 

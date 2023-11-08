@@ -2,7 +2,7 @@
   import type {
     InvocationVariableName,
     InvocationVariableDetails,
-  } from '$lib/IMacroManager';
+  } from '$lib/types/IMacroManager';
   import { Input } from '$lib/components/ui/input';
   import Label from '$lib/components/ui/label/label.svelte';
   import * as Select from '$lib/components/ui/select';

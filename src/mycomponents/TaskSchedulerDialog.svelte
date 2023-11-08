@@ -7,9 +7,9 @@
   import type {
     InvocationVariableName,
     InvocationVariableDetails,
-  } from '$lib/IMacroManager';
+  } from '$lib/types/IMacroManager';
   import { onMount } from 'svelte';
-  import { validateMacroRPC } from '$lib/myUtils';
+  import { validateMacroRPC } from '$lib/utils/myUtils';
   import InvocationVariablesForm from './InvocationVariablesForm.svelte';
   import Label from '$lib/components/ui/label/label.svelte';
   import { Input } from '$lib/components/ui/input';
@@ -31,7 +31,7 @@
   let timeBetweenInstructionsS: string = '1';
 
   const baseCommand = `pythonw ${macroPath}`;
-  let command = baseCommand;
+  let command = baseCommand + ` --interval_s=${timeBetweenInstructionsS}`;
   let copiedToClipboard = false;
 
   $: {
@@ -60,7 +60,7 @@
   }
 
   function updateCommand() {
-    if (invocationVariables == 'loading' || invocationVariables == null) return;
+    if (invocationVariables == 'loading') return;
 
     if (errorInterval) clearInterval(errorInterval);
     errorMessage = null;
@@ -121,7 +121,10 @@
           value="1"
           class="w-28"
           type="number"
-          on:input={(e) => (timeBetweenInstructionsS = e.currentTarget.value)}
+          on:input={(e) => {
+            const newInterval = e.currentTarget.value;
+            if (newInterval) timeBetweenInstructionsS = e.currentTarget.value;
+          }}
         />
         seconds
       </span>

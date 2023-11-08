@@ -1,16 +1,26 @@
-import type { IMacroManager, InvocationVariableDetails, InvocationVariableName } from './IMacroManager';
-import type { Folder } from './FileSystemTree';
+import type { IMacroManager, InvocationVariableDetails, InvocationVariableName } from './types/IMacroManager';
+import type { Folder } from './utils/FileSystemTree';
 import os from "os";
-import { getLatestMacroLogs, getMacrosFlat } from './FileSystemUtils';
+import { getLatestMacroLogs, getMacrosFlat } from './utils/FileSystemUtils';
 import { exec } from "child_process"
 import path from 'path';
 import fs from 'fs-extra';
-import { macroTemplate } from './macro-template';
+import { macroTemplate } from './utils/macro-template';
+import { macroBoilerplate } from './utils/macro-boilerplate';
 
-const MacrosPath = path.join(os.userInfo().homedir, 'MacroManager');
+export const MacrosPath = path.join(os.userInfo().homedir, 'MacroManager');
+export const templateMacroPath = path.join(MacrosPath, 'macro-template.py');
 const DEFAULT_MACRO_NAME = "macro.py"
 const PythonFrameworkName = "DesktopAutomationFramework"
 const PythonFrameworkGithubVersionFile = `https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt`
+
+function createTemplateMacroIfNotExists() {
+    if (!fs.existsSync(templateMacroPath)) {
+        // fs.createFileSync(templateMacroPath)
+        fs.writeFileSync(templateMacroPath, macroTemplate)
+    }
+}
+createTemplateMacroIfNotExists()
 
 export const MacroManager: IMacroManager = {
     // Returns the full path of the macro
@@ -22,15 +32,16 @@ export const MacroManager: IMacroManager = {
         fs.mkdirSync(folderFullPath);
 
         // Create template macro file
-        fs.writeFileSync(pythonFilePath, macroTemplate);
+        fs.writeFileSync(pythonFilePath, macroBoilerplate);
 
         return pythonFilePath;
     },
 
     openMacrosFolder: () => exec(`explorer "${MacrosPath}"`),
-    openMacroInCodeEditor: (absoluteMacroPath: string) => exec(`code "${absoluteMacroPath}"`),
+    openMacroInCodeEditor: (absoluteMacroPath: string) => exec(`code "${path.dirname(absoluteMacroPath)}"`),
     openMacroInFileExplorer: (absoluteMacroPath: string) => exec(`explorer "${path.dirname(absoluteMacroPath)}"`),
     openTaskScheduler: () => exec(`taskschd.msc`),
+    openMacroTemplate: () => { createTemplateMacroIfNotExists(); exec(`code "${templateMacroPath}"`) },
 
     getMacrosFlat: () => getMacrosFlat(MacrosPath),
 
@@ -103,7 +114,6 @@ export const MacroManager: IMacroManager = {
     },
 
     getFrameworkVersions: async function () {
-        // curl https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt
         const remoteVersion: string = await new Promise((res) => {
             exec(`curl ${PythonFrameworkGithubVersionFile}`, (err, stdout) => {
                 res(stdout);
@@ -118,8 +128,6 @@ export const MacroManager: IMacroManager = {
                     }
                 });
             })
-
-        console.log(remoteVersion, currentVersion)
 
         return {
             shouldUpdate: currentVersion != remoteVersion,
