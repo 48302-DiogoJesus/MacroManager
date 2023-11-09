@@ -1,4 +1,5 @@
-' Run the MacroManager
 Set WshShell = CreateObject("WScript.Shell")
-WshShell.CurrentDirectory = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
-WshShell.Run "npm run dev", 0, False
+scriptDirectory = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
+WshShell.CurrentDirectory = scriptDirectory
+WshShell.Run "cmd /c set PATH=%appdata%\nodejs;%PATH% && npm install", 0, True
+WshShell.Run "cmd /c set PATH=%appdata%\nodejs;%PATH% && npm run dev", 0, False
