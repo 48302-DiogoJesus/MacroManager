@@ -19,9 +19,7 @@ const PythonFrameworkName = "DesktopAutomationFramework";
 const PythonFrameworkGithubVersionFile = `https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt`;
 
 function createEnvironment() {
-  if (!fs.existsSync(MacrosPath)) {
-    fs.createFileSync(MacrosPath);
-  }
+  fs.ensureDirSync(MacrosPath)
 
   if (!fs.existsSync(templateMacroPath)) {
     fs.createFileSync(templateMacroPath);
