@@ -1,1 +1,5 @@
-- One single venv inside Macros default path with all dependencies. All scripts are run using that python version
+- What if some macro wants to install a python dependency?
+
+# REMOTE
+- Uninstall NodeJS (inside appdata)
+- Uninstall Python

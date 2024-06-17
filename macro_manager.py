@@ -26,6 +26,7 @@ def create_environment_if_not_exists():
 	if not os.path.exists(MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH):
 		shutil.copy(MACRO_TEMPLATE_SCRIPT_PATH, MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH)
   
+	
 	print("Environment created successfully...")
 
 @dataclass
@@ -201,9 +202,9 @@ class MacroManager:
 	) -> None:
 		create_environment_if_not_exists()
 		key_value_pairs = " ".join([f'{key}="{value}"' for key, value in invocation_variables.items()])
-		command = f'pythonw "{absolute_macro_path}" {key_value_pairs}'
+		command = f'venv\\Scripts\\pythonw.exe "{absolute_macro_path}" {key_value_pairs}'
 		if time_between_instructions_s:
-				command += f' --interval_s={time_between_instructions_s}'
+			command += f' --interval_s={time_between_instructions_s}'
 				
 		os.system(command)
 
