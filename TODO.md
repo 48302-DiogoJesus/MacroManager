@@ -1,0 +1,1 @@
+- One single venv inside Macros default path with all dependencies. All scripts are run using that python version
