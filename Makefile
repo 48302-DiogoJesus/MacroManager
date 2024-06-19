@@ -1,5 +1,7 @@
+SHELL := cmd.exe
+
 updatefrontend:
-	cd ../frontend && npm run build && cp build/index.html templates/ && cp -r build/_app static/
+	cd ../frontend && npm run build && cp build/index.html ../backend/templates/ && cp -r build/_app ../backend/static/
 
 # On "dev" machine
 updatereqs:
