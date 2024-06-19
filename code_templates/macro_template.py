@@ -66,5 +66,3 @@ def macro():
     wait(4)
     ## Finish the macro execution earlier that the end of the function
     end()
-
-macro()

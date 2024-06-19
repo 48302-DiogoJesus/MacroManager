@@ -6,5 +6,3 @@ def macro():
     # Use ctrl+space on the library objects to see the available functions
     
     end()
-
-macro()
