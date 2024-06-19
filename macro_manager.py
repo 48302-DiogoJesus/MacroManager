@@ -28,7 +28,6 @@ def create_environment_if_not_exists():
 
 	if not os.path.exists(MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH):
 		shutil.copy(MACRO_TEMPLATE_SCRIPT_PATH, MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH)
-  
 	
 	print("Environment created successfully...")
 
