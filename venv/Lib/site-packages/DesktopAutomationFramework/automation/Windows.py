@@ -49,7 +49,7 @@ class windows:
             time_passed_s += 0.1
 
             if time_passed_s > timeout_s:
-                raise Exception("Window not found")
+                raise Exception(f"Window containing '{actual_window_title}' not found")
             else:
                 continue
 
@@ -65,4 +65,4 @@ class windows:
             window.show()
             RWVariables.expectedWindowTitle = partial_title
         else:
-            raise Exception("Window not found")
+            raise Exception(f"Window containing '{partial_title}' not found")

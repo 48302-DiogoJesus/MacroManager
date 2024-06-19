@@ -1,7 +1,10 @@
 import datetime
+import inspect
 import time
 
-from ..utils import get_source_around_line, handleMasterEventsWhileRunning
+from DesktopAutomationFramework.framework.types.MacroStatus import MacroStatus
+
+from ..utils import handleMasterEventsWhileRunning
 from ..Variables import RWVariables, RVariables
 
 # Put on Automation functions
@@ -9,10 +12,12 @@ def AutomationDecorator(func):
     def wrapper(*args, **kwargs):
         handleMasterEventsWhileRunning(func, args)
 
-        # TODO: Communicate w/ MacroMonitor
-        instructions, instruction_idx = get_source_around_line()
+        current_line = inspect.stack()[1].lineno
+        if RWVariables.macroStartLineNumber is not None and current_line < RWVariables.macroStartLineNumber: 
+            return
+        
         if RWVariables.macroMonitorShared is None: raise Exception("Macro Monitor variable was not initialized (= None)")
-        RWVariables.macroMonitorShared.updateInstructionsWindow(instruction_idx, instructions)
+        RWVariables.macroMonitorShared.updateInstruction(current_line)
 
         # Execute operation
         try:

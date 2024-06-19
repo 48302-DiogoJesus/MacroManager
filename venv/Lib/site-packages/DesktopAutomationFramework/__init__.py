@@ -3,7 +3,7 @@
 ## Automation Functionality
 from .automation.Windows import windows
 from .automation.Keyboard import keyboard, key
-from .automation.Input import input
+from .automation.GUI import gui
 from .automation.Files import files
 
 from .automation.Variables import vars
