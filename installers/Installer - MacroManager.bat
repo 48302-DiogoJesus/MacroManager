@@ -11,13 +11,19 @@ pause
 git clone https://github.com/48302-DiogoJesus/MacroManager/
 
 echo.
-echo [2) Install Macro Manager (run at system startup)]
+echo [2) Install Python 'Desktop Macro Framework' package]
+echo.
+pause
+pip install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework
+
+echo.
+echo [3) Install Macro Manager (run at system startup)]
 echo.
 pause
 cscript MacroManager/installers/MacroManagerInstall.vbs
 
 echo.
-echo [3) Run Macro Manager]
+echo [4) Run Macro Manager]
 echo.
 pause
 cscript MacroManager/installers/MacroManagerRun.vbs

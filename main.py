@@ -57,10 +57,7 @@ if __name__ == '__main__':
 		print("[Error generating typescript interface. Ignore if in not in DEVELOPMENT environment]:")
 		print(ex)
 		print("----------------------------")
-  
-	# Install the Macro Framework package from GitHub
-	os.system("pip install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework")
-  
+    
 	macro_manager.create_environment_if_not_exists()
 	
 	app.run(debug=True, port=HTTP_SERVER_PORT, )
