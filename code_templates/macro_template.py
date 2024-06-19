@@ -1,4 +1,4 @@
-from DesktopAutomationFramework import vars, keyboard, key, windows, files, input, Macro, wait, end
+from DesktopAutomationFramework import vars, keyboard, key, windows, files, gui, Macro, wait, end
 
 @Macro(interval_s=2.5) # You can increase this while testing and decrease later
 def macro():
@@ -52,13 +52,13 @@ def macro():
     # INPUT (USER INTERFACES) #
 
     ## Show a message
-    input.message("First Stage Complete")
+    gui.show("First Stage Complete")
     ## Ask user if he wants to proceed. If the answer is NO, end the macro
-    should_proceed: bool = input.confirm("First Stage Complete. Do you want to proceed?")
+    should_proceed: bool = gui.confirm("First Stage Complete. Do you want to proceed?")
     if not should_proceed:
         end()
-    name: str = input.ask("What is your name?")
-    option_selected: str = input.options("Variant 1", "Variant 2", "Variant 3", "Variant 4")
+    name: str = gui.ask("What is your name?")
+    option_selected: str = gui.options("Variant 1", "Variant 2", "Variant 3", "Variant 4")
 
     # OTHER OPERATIONS (MORE GENERIC) #
 
