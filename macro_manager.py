@@ -24,6 +24,11 @@ PYTHON_FRAMEWORK_NAME = "DesktopAutomationFramework"
 PythonFrameworkGithubVersionFile = "https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt"
 
 def create_environment_if_not_exists():
+    # Without this, it's not possible to do "git rev-parse HEAD" to check versions if this is installed on an external device (e.g., pendrive)
+	p = os.path.abspath('.').replace('\\', '/')
+	cmd = f"git config --global --add safe.directory {p}"
+	os.system(cmd)
+ 
 	os.makedirs(MACROS_BASE_PATH, exist_ok=True)
 
 	if not os.path.exists(MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH):
