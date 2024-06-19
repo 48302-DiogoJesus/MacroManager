@@ -1,12 +1,10 @@
 # Remote Operations
 - Uninstall NodeJS (inside appdata)
-- Uninstall Python
-- Remove regentry: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run 
+- Remove regentry: HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
 - Clean Install
-  - git clone MacroManager
-  - MacroManagerInstall.vbs
-  - MacroManagerRun.vbs
+  - take only installers\Installer - MacroManager.bat inside a pendrive 
+  - run installers\Installer - MacroManager.bat
   - Create Chrome bookmark for http://localhost:8181
 
 # Requirements
-- git installed (only for easier updates)
+- git installed (only for easier updates to the 2 app parts)

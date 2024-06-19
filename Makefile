@@ -1,7 +1,7 @@
 SHELL := cmd.exe
 
 run:
-	venv\Scripts\python.exe main.py
+	python.exe main.py
 
 updatefrontend:
 	cd ../frontend && npm run build && cp build/index.html ../backend/templates/ && cp -r build/_app ../backend/static/
@@ -10,10 +10,10 @@ updatefrontend:
 updatereqs:
 	pipreqs --force .
 
-# On "target" machine (not required if venv/ also goes)
+# On "target" machine
 installreqs:
-	venv/Scripts/pip.exe install -r requirements.txt
+	pip install -r requirements.txt
 
-# should not be needed, as it can be done via "Macro Manager" Web interface
+# should NOT BE NEEDED, as it can be done via "Macro Manager" Web interface
 updateautomation:
-	venv/Scripts/pip.exe install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework
+	pip install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework

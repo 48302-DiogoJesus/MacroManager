@@ -8,9 +8,6 @@ from typing import Optional, cast
 
 home_dir = os.path.expanduser("~")
 
-PIP_EXEC = "venv\\Scripts\\pip.exe"
-PYTHON_EXEC = "venv\\Scripts\\pythonw.exe"
-
 # Join the home directory with "MacroManager" to form the full path
 MACROS_BASE_PATH = os.path.join(home_dir, "MacroManager")
 MACRO_TEMPLATE_SCRIPT_NAME = 'macro_template.py'
@@ -209,7 +206,7 @@ class MacroManager:
 	) -> None:
 		create_environment_if_not_exists()
 		key_value_pairs = " ".join([f'{key}="{value}"' for key, value in invocation_variables.items()])
-		command = f'{PYTHON_EXEC} "{absolute_macro_path}" {key_value_pairs}'
+		command = f'pythonw "{absolute_macro_path}" {key_value_pairs}'
 		if time_between_instructions_s:
 			command += f' --interval_s={time_between_instructions_s}'
 				
@@ -222,7 +219,7 @@ class MacroManager:
 		remote_version_stdout, _ = remote_version_process.communicate()
 		remote_version = remote_version_stdout.decode().strip()
 
-		current_version_command = f'{PIP_EXEC} show {PYTHON_FRAMEWORK_NAME}'
+		current_version_command = f'pip show {PYTHON_FRAMEWORK_NAME}'
 		current_version_process = subprocess.Popen(current_version_command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		current_version_stdout, _ = current_version_process.communicate()
 		current_version_output = current_version_stdout.decode().strip()
@@ -253,7 +250,7 @@ class MacroManager:
 
 	@staticmethod
 	def update_framework() -> None:
-		command = f"{PIP_EXEC} install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework"
+		command = f"pip install --upgrade --force-reinstall git+https://github.com/48302-DiogoJesus/DesktopMacroFramework"
 		process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		stdout, stderr = process.communicate()
 		print(f"update_framework() => {stdout.decode().strip()}")
