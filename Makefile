@@ -1,5 +1,8 @@
 SHELL := cmd.exe
 
+run:
+	venv\Scripts\python.exe main.py
+
 updatefrontend:
 	cd ../frontend && npm run build && cp build/index.html ../backend/templates/ && cp -r build/_app ../backend/static/
 
