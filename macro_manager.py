@@ -270,3 +270,7 @@ class MacroManager:
 		returncode = process.returncode
 		if returncode != 0:
 			raise RuntimeError(f"Error updating manager. Command returned non-zero exit code {returncode}.")
+
+		# Restart the manager with the new code version
+		os.system("installers\\MacroManagerRun.vbs")
+		exit()
