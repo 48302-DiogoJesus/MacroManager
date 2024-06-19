@@ -263,7 +263,7 @@ class MacroManager:
 
 	@staticmethod
 	def update_manager() -> None:
-		command = "git pull --ff-only"
+		command = "git fetch origin && git reset --hard origin/main && git clean -fd"
 		process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		stdout, stderr = process.communicate()
 		print(f"update_manager() => {stdout.decode().strip()}")
