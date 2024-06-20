@@ -1,3 +1,4 @@
+import ast
 from dataclasses import dataclass
 from datetime import datetime
 import os
@@ -165,37 +166,33 @@ class MacroManager:
 
 	@staticmethod
 	def get_macro_invocation_variables_metadata(absolute_macro_path: str) -> MacroInvocationVariablesMetadata:
-		create_environment_if_not_exists()
-		useful_lines = []
 		with open(absolute_macro_path, 'r', encoding='utf-8') as file:
-				for line in file:
-						if "vars.getNumber(" in line or "vars.getString(" in line:
-								useful_lines.append(line.strip())
+			tree = ast.parse(file.read(), filename="MACRO")
 
-		invocation_variables_metadata: MacroInvocationVariablesMetadata = MacroInvocationVariablesMetadata(variables={})
+			invocation_variables_metadata = MacroInvocationVariablesMetadata(variables={})
 
-		# Process each useful line
-		for line in useful_lines:
-			parts = line.split("(")
-			function_call = parts[0].strip()
-			# ! Don't like this ! what if python framework changes ?
-			if "vars.getNumber" in function_call:
-				type_ = "number"
-			elif "vars.getString" in function_call:
-				type_ = "string"
+			class VarsCallVisitor(ast.NodeVisitor):
+				def visit_Call(self, node: ast.Call):
+					if isinstance(node.func, ast.Attribute) and node.func.attr in {"getNumber", "getString"}:
+						if isinstance(node.func.value, ast.Name) and node.func.value.id == "vars":
+							type_ = "number" if node.func.attr == "getNumber" else "string"
+							varname = None
+							accepted_values = None
 
-			args = parts[1].strip()
-			varname = re.search(r'"(.*?)"', args).group(1)
-			args = args[args.index('"')+1:]
-			
-			accepted_values: list[str] | None = None
-			if args.startswith(","):
-				args = args[1:].strip()
-				if args.startswith("accepted_values="):
-					accepted_values = args.split("=")[1].strip()[1:-1].split(",")
-					accepted_values = [value.strip().strip('"') for value in cast(list[str], accepted_values)]
+							if node.args and isinstance(node.args[0], ast.Constant):
+								varname = node.args[0].value
+							if len(node.keywords) > 0:
+								for keyword in node.keywords:
+									if keyword.arg == "accepted_values" and isinstance(keyword.value, ast.List):
+										accepted_values = [elt.value for elt in keyword.value.elts if isinstance(elt, ast.Constant)]
+							if varname:
+								invocation_variables_metadata.variables[varname] = MacroInvocationVariableMetadata(type_, accepted_values)
 
-			invocation_variables_metadata.variables[varname] = MacroInvocationVariableMetadata(type_, accepted_values)
+					self.generic_visit(node)
+
+			visitor = VarsCallVisitor()
+			visitor.visit(tree)
+
 		return invocation_variables_metadata
 
 	@staticmethod

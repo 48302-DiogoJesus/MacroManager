@@ -1,5 +1,4 @@
-import os
-from flask import Flask, logging, render_template, request, jsonify, send_from_directory, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
 
 import macro_manager
@@ -39,12 +38,12 @@ def rpc_handler():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+	return render_template('index.html')
 
 @app.route('/_app/<path:filename>')
 def serve_static(filename):
-    directory = 'static/_app'
-    return send_from_directory(directory, filename)
+	directory = 'static/_app'
+	return send_from_directory(directory, filename)
 
 if __name__ == '__main__':
 	try:
@@ -57,7 +56,7 @@ if __name__ == '__main__':
 		print("[Error generating typescript interface. Ignore if in not in DEVELOPMENT environment]:")
 		print(ex)
 		print("----------------------------")
-    
+	
 	macro_manager.create_environment_if_not_exists()
 	
 	app.run(debug=True, port=HTTP_SERVER_PORT, )
