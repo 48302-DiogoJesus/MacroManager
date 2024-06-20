@@ -202,14 +202,17 @@ class MacroManager:
 	def run_macro(
 		absolute_macro_path: str,
 		invocation_variables: dict[str, str] = {},
-		time_between_instructions_s: Optional[str] = None
+		time_between_instructions_s: Optional[str] = None,
+  		auto_run: bool = False
 	) -> None:
 		create_environment_if_not_exists()
 		key_value_pairs = " ".join([f'{key}="{value}"' for key, value in invocation_variables.items()])
 		command = f'pythonw "{absolute_macro_path}" {key_value_pairs}'
 		if time_between_instructions_s:
 			command += f' --interval_s={time_between_instructions_s}'
-				
+		if auto_run:
+			command += ' --auto-run'
+	
 		os.system(command)
 
 	@staticmethod
