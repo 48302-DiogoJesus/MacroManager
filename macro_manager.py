@@ -200,7 +200,8 @@ class MacroManager:
 		absolute_macro_path: str,
 		invocation_variables: dict[str, str] = {},
 		time_between_instructions_s: Optional[str] = None,
-  		auto_run: bool = False
+  		auto_run: bool = False,
+  		exit_after_run: bool = False
 	) -> None:
 		create_environment_if_not_exists()
 		key_value_pairs = " ".join([f'{key}="{value}"' for key, value in invocation_variables.items()])
@@ -209,6 +210,8 @@ class MacroManager:
 			command += f' --interval_s={time_between_instructions_s}'
 		if auto_run:
 			command += ' --auto-run'
+		if exit_after_run:
+			command += ' --exit-after-run'
 	
 		os.system(command)
 
