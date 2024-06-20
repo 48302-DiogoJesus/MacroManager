@@ -1,6 +1,6 @@
-from DesktopAutomationFramework import vars, keyboard, key, windows, files, gui, Macro, wait, end
+from DesktopAutomationFramework import vars, keyboard, key, windows, files, gui, Macro, wait, end, pause
 
-@Macro() # You can increase the interval while testing and decrease later
+@Macro()
 def macro():
     # Write your macro code here. 
     # Use ctrl+space on the library objects to see the available functions

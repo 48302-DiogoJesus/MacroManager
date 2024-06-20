@@ -1,6 +1,6 @@
-from DesktopAutomationFramework import vars, keyboard, key, windows, files, gui, Macro, wait, end
+from DesktopAutomationFramework import vars, keyboard, key, windows, files, gui, Macro, wait, end, pause
 
-@Macro() # You can increase this while testing and decrease later
+@Macro()
 def macro():
     # GETTING INVOCATION VARIABLES #
 
