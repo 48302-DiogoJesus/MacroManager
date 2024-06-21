@@ -5,7 +5,8 @@ import os
 import re
 import shutil
 import subprocess
-from typing import Optional, cast
+import sys
+from typing import Optional
 
 home_dir = os.path.expanduser("~")
 
@@ -16,13 +17,14 @@ MACRO_TEMPLATE_SCRIPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file
 MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH = os.path.join(MACROS_BASE_PATH, MACRO_TEMPLATE_SCRIPT_NAME)
 
 DEFAULT_MACRO_NAME = "macro.py"
+VSCODE_CONFIG_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".vscode")
 DEFAULT_MACRO_SCRIPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "code_templates", DEFAULT_MACRO_NAME)
-
+CODE_EDITOR_PATH = sys.argv[1]
 PYTHON_FRAMEWORK_NAME = "DesktopAutomationFramework"
 PythonFrameworkGithubVersionFile = "https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt"
 
 def create_environment_if_not_exists():
-    # Without this, it's not possible to do "git rev-parse HEAD" to check versions if this is installed on an external device (e.g., pendrive)
+	# Without this, it's not possible to do "git rev-parse HEAD" to check versions if this is installed on an external device (e.g., pendrive)
 	p = os.path.abspath('.').replace('\\', '/')
 	cmd = f"git config --global --add safe.directory {p}"
 	os.system(cmd)
@@ -67,6 +69,11 @@ class MacroManager:
 		os.makedirs(folderFullPath)
 		# Copy macro template script to macro folder
 		shutil.copy(DEFAULT_MACRO_SCRIPT_PATH, pythonFilePath)
+  
+		try:
+			shutil.copytree(VSCODE_CONFIG_FOLDER_PATH, os.path.join(folderFullPath, ".vscode"))
+		except Exception as e:
+			print("MREDE", e)
 		
 		return pythonFilePath
 
@@ -78,7 +85,7 @@ class MacroManager:
 	def open_macro_in_code_editor(absolute_macro_path: str) -> None:
 		create_environment_if_not_exists()
 		print(absolute_macro_path)
-		os.system('code "' + os.path.dirname(absolute_macro_path) + "\"")
+		os.system(f'{CODE_EDITOR_PATH} "' + os.path.dirname(absolute_macro_path) + "\"")
 	
 	@staticmethod
 	def open_macro_in_file_explorer(absolute_macro_path: str) -> None:
@@ -94,7 +101,7 @@ class MacroManager:
 	def open_macro_template() -> None:
 		create_environment_if_not_exists()
 		create_environment_if_not_exists()
-		os.system('code "' + MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH + "\"")
+		os.system(f'{CODE_EDITOR_PATH} "' + MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH + "\"")
 	
 	@staticmethod
 	def get_macros_flat() -> list[Macro]:
