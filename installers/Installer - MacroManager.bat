@@ -20,13 +20,13 @@ echo.
 echo [3) Install Macro Manager (run at system startup)]
 echo.
 pause
-cscript MacroManager/installers/MacroManagerInstall.vbs
+cscript MacroManager/installers/Install.vbs
 
 echo.
 echo [4) Run Macro Manager]
 echo.
 pause
-cscript MacroManager/installers/MacroManagerRun.vbs
+cscript MacroManager/installers/Run.vbs
 
 echo.
 echo [DONE] Running on http://localhost:8181/

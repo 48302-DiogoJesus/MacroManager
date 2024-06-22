@@ -19,7 +19,7 @@ MACRO_TEMPLATE_SCRIPT_DESTINATION_PATH = os.path.join(MACROS_BASE_PATH, MACRO_TE
 DEFAULT_MACRO_NAME = "macro.py"
 VSCODE_CONFIG_FOLDER_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".vscode")
 DEFAULT_MACRO_SCRIPT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "code_templates", DEFAULT_MACRO_NAME)
-CODE_EDITOR_PATH = sys.argv[1]
+CODE_EDITOR_PATH = sys.argv[1] if len(sys.argv) > 1 else "code"
 PYTHON_FRAMEWORK_NAME = "DesktopAutomationFramework"
 PythonFrameworkGithubVersionFile = "https://raw.githubusercontent.com/48302-DiogoJesus/DesktopMacroFramework/main/version.txt"
 

@@ -59,4 +59,4 @@ if __name__ == '__main__':
 	
 	macro_manager.create_environment_if_not_exists()
 	
-	app.run(debug=True, port=HTTP_SERVER_PORT, )
+	app.run(debug=False, port=HTTP_SERVER_PORT, )
